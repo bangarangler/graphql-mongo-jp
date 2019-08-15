@@ -1,0 +1,36 @@
+{
+  "name": "graphqlmongo",
+  "version": "1.0.0",
+  "description": "graphql mongo",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bangarangler/graphql-mongo-jp.git"
+  },
+  "author": "JP",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bangarangler/graphql-mongo-jp/issues"
+  },
+  "homepage": "https://github.com/bangarangler/graphql-mongo-jp#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "express-validator": "^6.1.1",
+    "graphql": "^14.4.2",
+    "helmet": "^3.20.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.9",
+    "morgan": "^1.9.1",
+    "validator": "^11.1.0"
+  }
+}
