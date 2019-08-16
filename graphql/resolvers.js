@@ -3,6 +3,7 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user.js");
+const Item = require("../models/item.js");
 
 module.exports = {
   createUser: async ({ userInput }, req) => {
@@ -72,5 +73,84 @@ module.exports = {
       throw error;
     }
     return { ...user._doc, _id: user._id.toString() };
+  },
+  createItem: async ({ itemInput }, req) => {
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated!");
+      error.code = 401;
+      throw error;
+    }
+    const errors = [];
+    if (
+      validator.isEmpty(itemInput.title) ||
+      !validator.isLength(itemInput.title, { min: 5 })
+    ) {
+      errors.push({ message: "Title is invalid." });
+    }
+    if (
+      validator.isEmpty(itemInput.description) ||
+      !validator.isLength(itemInput.description, { min: 5 })
+    ) {
+      errors.push({ message: "Content is invalid." });
+    }
+    if (errors.length > 0) {
+      const error = newError("Invalid input.");
+      error.data = errors;
+      error.code = 422;
+      throw error;
+    }
+    const user = await User.findById(req.userId);
+    console.log("User:", user);
+    if (!user) {
+      const error = new Error("Invalid user.");
+      error.data = errors;
+      error.code = 401;
+      throw error;
+    }
+    const item = new Item({
+      title: itemInput.title,
+      description: itemInput.description,
+      image: itemInput.image,
+      price: itemInput.price,
+      user: user
+    });
+    const createdItem = await item.save();
+    console.log("item: ", createdItem);
+    user.items.push(createdItem);
+    await user.save();
+    return {
+      ...createdItem._doc,
+      _id: createdItem._id.toString(),
+      createdAt: createdItem.createdAt.toISOString(),
+      updatedAt: createdItem.updatedAt.toISOString()
+    };
+  },
+  items: async ({ page }, req) => {
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated!");
+      error.code = 401;
+      throw error;
+    }
+    if (!page) {
+      page = 1;
+    }
+    const perPage = 4;
+    const totalItems = await Item.find().countDocuments();
+    const items = await Item.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .populate("user");
+    return {
+      items: items.map(i => {
+        return {
+          ...i._doc,
+          _id: i._id.toString(),
+          createdAt: i.createdAt.toISOString(),
+          updatedAt: i.updatedAt.toISOString()
+        };
+      }),
+      totalItems: totalItems
+    };
   }
 };
